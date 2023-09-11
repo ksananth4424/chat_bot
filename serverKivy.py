@@ -1,7 +1,7 @@
 import socket
 import threading
 
-HOST = '192.168.1.115'
+HOST = '127.0.0.1'
 PORT = 9090
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,7 +17,8 @@ def broadcast(message):
         client.send(message)
 
 def handle(client):
-    while True:
+    stop = True
+    while stop:
         try:
             message = client.recv(1024)
             print(f"{nicknames[clients.index(client)]}")
@@ -30,9 +31,10 @@ def handle(client):
             nickname = nicknames[index]
             nicknames.remove(nickname)
             broadcast(f"{nickname} has left the chat!!".encode('utf-8'))
-            break
+            stop = False    
 
-def receive():
+def main():
+    print("Server is running...")
     while(True):
         client, address = server.accept()
         print(f"Connected with {str(address)}!")
@@ -45,10 +47,10 @@ def receive():
 
         print(f"Nickname of the clint is {nickname}")
         broadcast(f"{str(nickname)} connected to the server!\n".encode('utf-8'))
-        client.send('Connected to the server'.encode('utf-8'))
+        client.send('You are now connected'.encode('utf-8'))
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
 
-print("Server running")
-receive()
+if __name__ == '__main__':
+    main()
